@@ -1,0 +1,12 @@
+GET http://localhost:3333/hello
+
+###
+
+POST http://localhost:3333/api/posts
+Content-Type: application/json
+
+{
+    "title": "Post 1",
+    "text": "Some text",
+    "author": "Alex"
+}
