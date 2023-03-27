@@ -6,7 +6,34 @@ POST http://localhost:3333/api/posts
 Content-Type: application/json
 
 {
-    "title": "Post 1",
-    "text": "Some text",
-    "author": "Alex"
+    "title": "Post 2",
+    "text": "Some text 2",
+    "author": "Alex",
+    "test": "hello"
 }
+
+###
+
+GET http://localhost:3333/api/posts
+
+###
+
+GET http://localhost:3333/api/posts?skip=5&limit=5
+
+###
+
+GET http://localhost:3333/api/posts/5
+
+###
+
+PATCH http://localhost:3333/api/posts/fdgdf
+Content-Type: application/json
+
+{
+    "title": "Post",
+    "text": "Some text"
+}
+
+###
+
+DELETE http://localhost:3333/api/posts/4
