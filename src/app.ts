@@ -1,8 +1,9 @@
 // @ts-check
-const { PrismaClientKnownRequestError } = require('@prisma/client/runtime')
-const express = require('express')
-const { z, ZodError } = require('zod')
-const db = require('./prisma/db')
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import express from 'express';
+require('express-async-errors');
+import { z, ZodError } from 'zod';
+import db from './db';
 const app = express()
 
 // body parser (json)
@@ -53,45 +54,34 @@ app.get('/api/posts/:postId', async (req, res) => {
 })
 
 // Create
-app.post('/api/posts', async (req, res) => {
+app.post('/api/posts', async (req, res, next) => {
     const schema = z.object({
         title: z.string(),
         text: z.string(),
-        author: z.string(),
+        // author: z.string(),
+        // userId
     })
-    try {
-        const newPost = await schema.parseAsync(req.body)
-        const newPostDB = await db.post.create({
-            data: newPost
-        })
-        res.send(newPostDB)
-    } catch (error) {
-        if (error instanceof ZodError) {
-            res.status(400).send({
-                message: error.message
-            })
-        }
-        if (error instanceof PrismaClientKnownRequestError) {
-            res.status(400).send({
-                message: error.message,
-                code: error.code
-            })
-        }
-    }
+    type Post = Required<z.infer<typeof schema>>
+    const newPost = await schema.parseAsync(req.body) as Post
+    const newPostDB = await db.post.create({
+        data: newPost
+    })
+    res.send(newPostDB)
 })
 
 // Update
-app.patch('/api/posts/:postId', async (req, res) => {
-    const schema = z.object({
+app.patch('/api/posts/:postId', async (req, res, next) => {
+    const schemaBody = z.object({
         title: z.string().optional(),
         text: z.string().optional(),
         author: z.string().optional(),
     })
-    const postId = req.params.postId
-    const updatedPost = req.body
+    const schemaPostId = z.number()
+    const postId = await schemaPostId.parseAsync(+req.params.postId)
+    const updatedPost = await schemaBody.parseAsync(req.body)
     const updatedPostDb = await db.post.update({
         where: {
-            id: +postId
+            id: postId
         },
         data: updatedPost
     })
@@ -100,13 +90,37 @@ app.patch('/api/posts/:postId', async (req, res) => {
 
 // Delete
 app.delete('/api/posts/:postId', async (req, res) => {
-    const postId = req.params.postId
+    const schemaPostId = z.number()
+    const postId = await schemaPostId.parseAsync(+req.params.postId)
     const removedPost = await db.post.delete({
         where: {
-            id: +postId
+            id: postId
         }
     })
     res.send(removedPost)
 })
+
+/** @type {express.ErrorRequestHandler} */
+const errorHandler = (error, req, res, next) => {
+    if (error instanceof ZodError) {
+        res.status(400).send({
+            errors: error.errors
+        })
+    }
+    if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+            res.status(400).send({
+                message: "The Post ID doesn't exist"
+            })
+        } else {
+            res.status(400).send({
+                message: error.message,
+                code: error.code
+            })
+        }
+    }
+}
+
+app.use(errorHandler)
 
 app.listen(3333)
