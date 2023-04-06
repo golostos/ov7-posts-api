@@ -1,7 +1,3 @@
-GET http://localhost:3333/hello
-
-###
-
 POST http://localhost:3333/api/posts
 Content-Type: application/json
 
@@ -37,3 +33,35 @@ Content-Type: application/json
 ###
 
 DELETE http://localhost:3333/api/posts/12
+
+###
+
+POST http://localhost:3333/api/users
+Content-Type: application/json
+
+{
+    "email": "test@test.ru",
+    "name": "test",
+    "password": "pass"
+}
+
+###
+
+PATCH http://localhost:3333/api/users/6
+Content-Type: application/json
+
+{
+    "email": "test123455@test.ru",
+    "name": "Jo",
+    "password": "12345"
+}
+
+###
+
+POST http://localhost:3333/api/login
+Content-Type: application/json
+
+{
+    "email": "test123455@test.ru",
+    "password": "12345"
+}
