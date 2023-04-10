@@ -10,7 +10,14 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
     } else if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
             res.status(400).send({
-                message: "The Post ID doesn't exist"
+                message: "This ID doesn't exist"
+            });
+        } else if (error.code === 'P2002') {
+            const field = (error.meta && Array.isArray(error.meta.target))
+                ? error.meta.target[0] as string
+                : 'unknown field'
+            res.status(400).send({
+                message: `This ${field} is already exist`,
             });
         } else {
             res.status(400).send({

@@ -35,7 +35,10 @@ postsRouter.get('/:postId', async (req, res) => {
                 id: postId.data
             }
         })
-        res.send(post)
+        if (post) res.send(post)
+        else res.status(404).send({
+            message: 'Cannot find this PostID'
+        })
     } else {
         res.status(400).send({ message: 'Wrong PostID' })
     }

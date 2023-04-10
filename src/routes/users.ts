@@ -3,6 +3,7 @@ import { z } from "zod"
 import db from "../db"
 import { hashSync } from "bcryptjs"
 import { Prisma } from "@prisma/client"
+import { verifyToken } from "../auth"
 
 export const usersRouter = Router()
 // RESTful API
@@ -28,16 +29,23 @@ usersRouter.get('/', async (req, res) => {
 })
 
 // GET /api/posts/12345
-usersRouter.get('/:userId', async (req, res) => {
+usersRouter.get('/:userId', verifyToken, async (req, res) => {
     const schema = z.number()
     const userId = await schema.safeParseAsync(+req.params.userId)
     if (userId.success) {
-        const post = await db.user.findUnique({
+        // @ts-ignore
+        if (req.user.id !== userId.data) return res.status(403).send({
+            message: 'No permisions'
+        })
+        const user = await db.user.findUnique({
             where: {
                 id: userId.data
             }
         })
-        res.send(post)
+        if (user) res.send(user)
+        else res.status(404).send({
+            message: 'Cannot find this UserID'
+        })
     } else {
         res.status(400).send({ message: 'Wrong userId' })
     }
