@@ -57,6 +57,7 @@ authRouter.post('/api/signup', async (req, res, next) => {
         httpOnly: true,
         expires: new Date(Date.now() + 2 * 24 * 3600 * 1000),
     })
+    // res.cookie('token', '')
     res.send({
         message: 'Successful signup'
     })

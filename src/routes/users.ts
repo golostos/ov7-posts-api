@@ -14,8 +14,12 @@ export const usersRouter = Router()
 // Delete
 
 // Read
-usersRouter.get('/', async (req, res) => {
+usersRouter.get('/', verifyToken, async (req, res) => {
     const { skip, limit } = req.query
+    // Guard condition
+    if (!req.user?.isAdmin) return res.status(403).send({
+        message: 'No permisions'
+    })
     if (typeof skip === 'string' && typeof limit === 'string') {
         const posts = await db.user.findMany({
             skip: +skip,
@@ -29,12 +33,12 @@ usersRouter.get('/', async (req, res) => {
 })
 
 // GET /api/posts/12345
+// isAdmin
 usersRouter.get('/:userId', verifyToken, async (req, res) => {
     const schema = z.number()
     const userId = await schema.safeParseAsync(+req.params.userId)
     if (userId.success) {
-        // @ts-ignore
-        if (req.user.id !== userId.data) return res.status(403).send({
+        if (req.user?.id !== userId.data && !req.user?.isAdmin) return res.status(403).send({
             message: 'No permisions'
         })
         const user = await db.user.findUnique({
@@ -52,7 +56,11 @@ usersRouter.get('/:userId', verifyToken, async (req, res) => {
 })
 
 // Create
-usersRouter.post('/', async (req, res, next) => {
+usersRouter.post('/', verifyToken, async (req, res, next) => {
+    // Guard condition
+    if (!req.user?.isAdmin) return res.status(403).send({
+        message: 'No permisions'
+    })
     const schema = z.object({
         email: z.string().email(),
         password: z.string().min(3).max(20),

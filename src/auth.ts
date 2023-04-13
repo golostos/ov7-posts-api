@@ -33,18 +33,24 @@ export const verifyToken: RequestHandler = async (req, res, next) => {
                 }
             })
             if (user) {
-                // @ts-ignore
                 req.user = user
                 next()
             } else {
                 res.status(401).send({
-                    message: 'Wrong userid in the token'
+                    message: 'Wrong userid in the token',
+                    url: req.path
                 })
             }
         } catch (error) {
             res.status(401).send({
-                message: 'Wrong token'
+                message: 'Wrong token',
+                url: req.path
             })
         }
+    } else {
+        res.status(401).send({
+            message: 'Token is required',
+            url: req.path
+        })
     }
 }

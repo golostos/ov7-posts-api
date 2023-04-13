@@ -1,6 +1,8 @@
 import { Router } from "express"
 import { z } from "zod"
 import db from "../db"
+import { verifyToken } from "../auth"
+import { Prisma } from "@prisma/client"
 
 export const postsRouter = Router()
 // RESTful API
@@ -45,31 +47,57 @@ postsRouter.get('/:postId', async (req, res) => {
 })
 
 // Create
-postsRouter.post('/', async (req, res, next) => {
+postsRouter.post('/', verifyToken, async (req, res, next) => {
+    // type guard condition
+    if (!req.user) return res.status(401).send({
+        message: "Wrong token"
+    })
     const schema = z.object({
         title: z.string(),
         text: z.string(),
-        // author: z.string(),
-        // userId
     })
-    type Post = Required<z.infer<typeof schema>>
-    const newPost = await schema.parseAsync(req.body) as Post
+    const newPost = await schema.parseAsync(req.body) // as Prisma.PostCreateInput
+    // newPost.User = {
+    //     connect: {
+    //         id: req.user?.id
+    //     }
+    // }
     const newPostDB = await db.post.create({
-        data: newPost
+        data: {
+            userId: req.user.id,
+            title: newPost.title,
+            text: newPost.text
+        },
+        // data: newPost     
     })
     res.send(newPostDB)
 })
 
 // Update
-postsRouter.patch('/:postId', async (req, res, next) => {
+postsRouter.patch('/:postId', verifyToken, async (req, res, next) => {
+    // type guard condition
+    if (!req.user) return res.status(401).send({
+        message: "Wrong token"
+    })
     const schemaBody = z.object({
         title: z.string().optional(),
-        text: z.string().optional(),
-        author: z.string().optional(),
+        text: z.string().optional()
     })
     const schemaPostId = z.number()
     const postId = await schemaPostId.parseAsync(+req.params.postId)
     const updatedPost = await schemaBody.parseAsync(req.body)
+    const existedPostDb = await db.post.findUnique({
+        where: {
+            id: postId
+        }
+    })
+    // guard condition
+    if (!existedPostDb) return res.status(404).send({
+        message: "Wrong PostID"
+    })
+    if (!req.user.isAdmin && req.user.id !== existedPostDb.userId) return res.status(403).send({
+        message: 'No permisions'
+    })
     const updatedPostDb = await db.post.update({
         where: {
             id: postId
@@ -81,8 +109,23 @@ postsRouter.patch('/:postId', async (req, res, next) => {
 
 // Delete
 postsRouter.delete('/:postId', async (req, res) => {
+    if (!req.user) return res.status(401).send({
+        message: "Wrong token"
+    })
     const schemaPostId = z.number()
     const postId = await schemaPostId.parseAsync(+req.params.postId)
+    const existedPostDb = await db.post.findUnique({
+        where: {
+            id: postId
+        }
+    })
+    // guard condition
+    if (!existedPostDb) return res.status(404).send({
+        message: "Wrong PostID"
+    })
+    if (!req.user.isAdmin && req.user.id !== existedPostDb.userId) return res.status(403).send({
+        message: 'No permisions'
+    })
     const removedPost = await db.post.delete({
         where: {
             id: postId

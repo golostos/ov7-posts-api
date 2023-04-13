@@ -18,11 +18,11 @@ GET http://localhost:3333/api/posts?skip=5&limit=5
 
 ###
 
-GET http://localhost:3333/api/posts/125
+GET http://localhost:3333/api/posts/12
 
 ###
 
-PATCH http://localhost:3333/api/posts/120
+PATCH http://localhost:3333/api/posts/12
 Content-Type: application/json
 
 {
@@ -33,6 +33,10 @@ Content-Type: application/json
 ###
 
 DELETE http://localhost:3333/api/posts/12
+
+###
+
+GET http://localhost:3333/api/users
 
 ###
 
@@ -66,8 +70,8 @@ POST http://localhost:3333/api/login
 Content-Type: application/json
 
 {
-    "email": "test123455@test.ru",
-    "password": "12345"
+    "email": "test1@mail.ru",
+    "password": "test123"
 }
 
 ###
@@ -83,4 +87,4 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:3333/api/users/6
+GET http://localhost:3333/api/users/5

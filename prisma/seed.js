@@ -13,30 +13,35 @@ async function seed() {
                 email: 'test1@mail.ru',
                 name: 'Wade',
                 passwordHash: bcryptjs.hashSync('test123'),
+                isAdmin: true
             },
             {
                 id: 2,
                 email: 'test2@mail.ru',
                 name: 'Dave',
-                passwordHash: bcryptjs.hashSync('test123')
+                passwordHash: bcryptjs.hashSync('test123'),
+                isAdmin: false
             },
             {
                 id: 3,
                 email: 'test3@mail.ru',
                 name: 'Seth',
-                passwordHash: bcryptjs.hashSync('test123')
+                passwordHash: bcryptjs.hashSync('test123'),
+                isAdmin: false
             },
             {
                 id: 4,
                 email: 'test4@mail.ru',
                 name: 'Ivan',
-                passwordHash: bcryptjs.hashSync('test123')
+                passwordHash: bcryptjs.hashSync('test123'),
+                isAdmin: false
             },
             {
                 id: 5,
                 email: 'test5@mail.ru',
                 name: 'Riley',
-                passwordHash: bcryptjs.hashSync('test123')
+                passwordHash: bcryptjs.hashSync('test123'),
+                isAdmin: false
             },
         ]
     })

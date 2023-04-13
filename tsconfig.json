@@ -2,14 +2,17 @@
     "compilerOptions": {
         "allowJs": true,
         "module": "CommonJS",
-        // "baseUrl": "./",
         "outDir": "dist",
         "rootDir": "src",
         "esModuleInterop": true,
         "sourceMap": true,
         "target": "ES2020",
-        "strict": true
+        "strict": true,
+        "typeRoots": [
+            "./src/@types", 
+            "./node_modules/@types"
+        ]
     },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules"],
+    "include": ["src/**/*"],    
+    "exclude": ["node_modules"]
 }
