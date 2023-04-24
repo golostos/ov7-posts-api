@@ -18,11 +18,28 @@ postsRouter.get('/', async (req, res) => {
     if (typeof skip === 'string' && typeof limit === 'string') {
         const posts = await db.post.findMany({
             skip: +skip,
-            take: +limit
-        })
+            take: +limit,
+            include: {
+                User: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                }
+            }
+        },)
         res.send(posts)
     } else {
-        const allPosts = await db.post.findMany({})
+        const allPosts = await db.post.findMany({
+            include: {
+                User: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                }
+            }
+        })
         res.send(allPosts)
     }
 })
@@ -35,6 +52,14 @@ postsRouter.get('/:postId', async (req, res) => {
         const post = await db.post.findUnique({
             where: {
                 id: postId.data
+            },
+            include: {
+                User: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                }
             }
         })
         if (post) res.send(post)
