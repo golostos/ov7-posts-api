@@ -4,8 +4,7 @@ Content-Type: application/json
 {
     "title": "Post 2",
     "text": "Some text 2",
-    "author": "Alex",
-    "test": "hello"
+    "userId": 1
 }
 
 ###

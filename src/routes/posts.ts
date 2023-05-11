@@ -82,18 +82,12 @@ postsRouter.post('/', verifyToken, async (req, res, next) => {
         text: z.string(),
     })
     const newPost = await schema.parseAsync(req.body) // as Prisma.PostCreateInput
-    // newPost.User = {
-    //     connect: {
-    //         id: req.user?.id
-    //     }
-    // }
     const newPostDB = await db.post.create({
         data: {
             userId: req.user.id,
             title: newPost.title,
             text: newPost.text
         },
-        // data: newPost     
     })
     res.send(newPostDB)
 })

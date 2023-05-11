@@ -1,6 +1,12 @@
 version: '3.1'
 
 services:
+  app:
+    container_name: postsapi-app
+    image: node:lts-alpine
+    ports:
+      - 3333:3333
+  
   db:
     container_name: postsapi-db
     image: postgres
