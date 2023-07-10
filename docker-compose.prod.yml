@@ -2,28 +2,48 @@ version: '3.1'
 
 services:
   app:
-    container_name: postsapi-app
-    image: node:lts-alpine
+    container_name: postsapi-app-prod
+    # working_dir: /app
+    # build: 
+    #   context: .
+    #   dockerfile: Dockerfile
+    image: golostos/seschool:latest
+    command: sh -c "npm run db:migrate:deploy && node dist/app.js"
+    restart: unless-stopped
     ports:
       - 3333:3333
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3333/api/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    env_file:
+      - .env.production
   
   db:
-    container_name: postsapi-db
+    container_name: postsapi-db-prod
     image: postgres
-    restart: always
+    restart: unless-stopped
     volumes:
-      - postsapi_db:/var/lib/postgresql/data:rw
-    ports:
-      - 5432:5432
+      - postsapi_db_prod:/var/lib/postgresql/data:rw
     env_file:
-      - .env
+      - .env.production
+    healthcheck:
+      test: ['CMD', 'pg_isready']
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   adminer:
-    container_name: postsapi-adminer
+    container_name: postsapi-adminer-prod
     image: adminer
-    restart: always
+    restart: unless-stopped
     ports:
       - 8080:8080
 
 volumes:
-  postsapi_db:
+  postsapi_db_prod:

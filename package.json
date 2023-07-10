@@ -8,9 +8,11 @@
     "dev": "tsx watch ./src/app.ts",
     "dev:nodemon": "nodemon --watch ./src --exec ts-node ./src/app.ts",
     "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:seed": "prisma db seed",
-    "build": "tsc"
+    "build": "tsc",
+    "start:prod": "prisma migrate deploy && npm run start"
   },
   "keywords": [],
   "author": "",

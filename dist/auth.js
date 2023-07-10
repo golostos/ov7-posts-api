@@ -43,6 +43,7 @@ const verifyToken = async (req, res, next) => {
             else {
                 res.status(401).send({
                     message: 'Wrong userid in the token',
+                    auth: false,
                     url: req.path
                 });
             }
@@ -50,6 +51,7 @@ const verifyToken = async (req, res, next) => {
         catch (error) {
             res.status(401).send({
                 message: 'Wrong token',
+                auth: false,
                 url: req.path
             });
         }
@@ -57,6 +59,7 @@ const verifyToken = async (req, res, next) => {
     else {
         res.status(401).send({
             message: 'Token is required',
+            auth: false,
             url: req.path
         });
     }

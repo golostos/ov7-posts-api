@@ -3,6 +3,7 @@ import { ZodError, z } from "zod"
 import db from "../db"
 import { createToken, verifyToken } from "../auth"
 import { compareSync, hashSync } from "bcryptjs"
+import { setTimeout as wait } from 'timers/promises'
 
 export const authRouter = Router()
 
@@ -77,7 +78,10 @@ authRouter.post('/api/signup', async (req, res, next) => {
     })
 })
 
-authRouter.get('/api/check-session', verifyToken, (req, res) => {
+authRouter.get('/api/check-session', verifyToken, async (req, res) => {
+    if (process.env.NODE_ENV !== 'production') {
+        await wait(2000)
+    }
     if (req.user) {
         res.send({
             auth: true,

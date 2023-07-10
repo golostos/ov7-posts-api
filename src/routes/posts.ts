@@ -3,6 +3,7 @@ import { z } from "zod"
 import db from "../db"
 import { verifyToken } from "../auth"
 import { Prisma } from "@prisma/client"
+import { setTimeout as wait } from 'timers/promises'
 
 export const postsRouter = Router()
 // RESTful API
@@ -14,9 +15,17 @@ export const postsRouter = Router()
 
 // Read
 postsRouter.get('/', async (req, res) => {
-    const { skip, limit } = req.query
-    if (typeof skip === 'string' && typeof limit === 'string') {
-        const posts = await db.post.findMany({
+    if (process.env.NODE_ENV !== 'production') {
+        await wait(1000)
+    }
+    const { skip, limit, filter } = req.query
+    if (typeof skip === 'string'
+        && Number.isInteger(+skip)
+        && +skip >= 0
+        && typeof limit === 'string'
+        && Number.isInteger(+limit)
+        && +limit >= 0) {
+        const findParams: Prisma.PostFindManyArgs = {
             skip: +skip,
             take: +limit,
             include: {
@@ -27,7 +36,18 @@ postsRouter.get('/', async (req, res) => {
                     }
                 }
             }
-        },)
+        }
+        const countParams: Prisma.PostCountArgs = {}
+        if (typeof filter === 'string' && filter.length) {
+            findParams.where = countParams.where = {
+                title: {
+                    contains: filter,
+                    mode: 'insensitive',
+                }
+            }
+        }
+        const posts = await db.post.findMany(findParams)
+        res.setHeader('X-Total-Count', await db.post.count(countParams))
         res.send(posts)
     } else {
         const allPosts = await db.post.findMany({

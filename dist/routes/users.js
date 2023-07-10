@@ -17,8 +17,13 @@ exports.usersRouter = (0, express_1.Router)();
 // Update
 // Delete
 // Read
-exports.usersRouter.get('/', async (req, res) => {
+exports.usersRouter.get('/', auth_1.verifyToken, async (req, res) => {
     const { skip, limit } = req.query;
+    // Guard condition
+    if (!req.user?.isAdmin)
+        return res.status(403).send({
+            message: 'No permisions'
+        });
     if (typeof skip === 'string' && typeof limit === 'string') {
         const posts = await db_1.default.user.findMany({
             skip: +skip,
@@ -33,11 +38,11 @@ exports.usersRouter.get('/', async (req, res) => {
 });
 // GET /api/posts/12345
 // isAdmin
-exports.usersRouter.get('/:userId', auth_1.verifyToken, async (req, res, next) => {
+exports.usersRouter.get('/:userId', auth_1.verifyToken, async (req, res) => {
     const schema = zod_1.z.number();
     const userId = await schema.safeParseAsync(+req.params.userId);
     if (userId.success) {
-        if (req.user?.id !== userId.data)
+        if (req.user?.id !== userId.data && !req.user?.isAdmin)
             return res.status(403).send({
                 message: 'No permisions'
             });
@@ -58,7 +63,12 @@ exports.usersRouter.get('/:userId', auth_1.verifyToken, async (req, res, next) =
     }
 });
 // Create
-exports.usersRouter.post('/', async (req, res, next) => {
+exports.usersRouter.post('/', auth_1.verifyToken, async (req, res, next) => {
+    // Guard condition
+    if (!req.user?.isAdmin)
+        return res.status(403).send({
+            message: 'No permisions'
+        });
     const schema = zod_1.z.object({
         email: zod_1.z.string().email(),
         password: zod_1.z.string().min(3).max(20),

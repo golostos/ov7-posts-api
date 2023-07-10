@@ -12,6 +12,9 @@ const users_1 = require("./routes/users");
 const authRouter_1 = require("./routes/authRouter");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const app = (0, express_1.default)();
+// app.use(cors({
+//     origin: ['http://127.0.0.1:5173', 'http://localhost:5173']
+// }))
 // body parser (json)
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
